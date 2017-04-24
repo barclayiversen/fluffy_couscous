@@ -5,7 +5,7 @@ var util = require('util'),
   phone = require('phone');
 
 function validateUserRegistrationData(req, res, next) {
-  //TODO: Validate the user doesn't already exist. 
+  //TODO: Validate the user doesn't already exist.
     req.checkBody('email', 'Invalid email!').isEmail();
     req.checkBody('password', 'Password is too short').isLength({
       min: 6
@@ -47,10 +47,17 @@ function isPhone(phone_number, callback) {
     callback(null, cleanPhoneNumber[0]);
   }
 
-}
+};
 
 function errorResponse(req, res, responseData) {
   res.status(400)
+    .json({
+      data: responseData
+    })
+};
+
+function successResponse(req, res, responseData) {
+  res.status(200)
     .json({
       data: responseData
     })
@@ -58,5 +65,7 @@ function errorResponse(req, res, responseData) {
 
 
 module.exports = {
-  validateUserRegistrationData: validateUserRegistrationData
-}
+  validateUserRegistrationData: validateUserRegistrationData,
+  errorResponse: errorResponse,
+  successResponse: successResponse
+};
