@@ -26,36 +26,43 @@ function create(loginCredentials, callback) {
           });
           //Save key value in redis for 2FA
           redisClient.set('phone_' + user.phone_number, key);
+
           //Dev
-          var slack = new Slack();
-          slack.setWebhook(process.env.SLACK_WEBHOOK);
-          slack.webhook({
-            channel: "#devmessages",
-            username: "barclaybot",
-            icon_emoji: ":ghost:",
-            text: "Your login key is: " + key
-          }, function(err, response) {
-            callback(null, 'Key sent');
-            return false;
-            console.log('Slack response: ', response);
-            if (err) {
-              console.log('Error: ', err);
-            }
-          });
+          if (process.env.env == 'dev') {
+            var slack = new Slack();
+            slack.setWebhook(process.env.SLACK_WEBHOOK);
+            slack.webhook({
+              channel: "#devmessages",
+              username: "barclaybot",
+              icon_emoji: ":ghost:",
+              text: "Your login key is: " + key
+            }, function(err, response) {
+              callback(null, 'Key sent');
+              return false;
+              console.log('Slack response: ', response);
+              if (err) {
+                console.log('Error: ', err);
+              }
+            });
+
+          }
 
           //Prod
-          twilioClient.sendMessage({
-            to: user.phone_number,
-            from: process.env.TWILIO_PHONE,
-            body: 'Your login key is' + key
-          }, function(err, responseData) {
-            if (err) {
-              console.log(err);
-              callback(err, 'Error');
-            } else {
-              callback(null, 'Key sent to phone');
-            }
-          })
+          if (process.env.env == 'prod') {
+            twilioClient.sendMessage({
+              to: user.phone_number,
+              from: process.env.TWILIO_PHONE,
+              body: 'Your login key is ' + key
+            }, function(err, responseData) {
+              if (err) {
+                console.log(err);
+                callback(err, 'Error');
+              } else {
+                callback(null, 'Key sent to phone');
+              }
+            })
+
+          }
 
         }
       });
