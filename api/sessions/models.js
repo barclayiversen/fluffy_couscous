@@ -10,6 +10,31 @@ var jwt = require('jsonwebtoken'),
   redisClient = redis.createClient(process.env.REDIS_PORT, process.env.REDIS_HOST),
   twilioClient = require('twilio')(process.env.TWILIO_ID, process.env.TWILIO_KEY, process.env.TWILIO_PHONE);
 
+function authenticate(user, callback) {
+  user.phone = phone(user.phone);
+  redisClient.get('key_' + user.phone, function(err, key) {
+    if (err) {
+      console.log('err', err);
+      callback(err, null);
+    } else {
+      if (key == user.phone) {
+
+        db.one('SELECT id, email FROM users WHERE phone_number = $1', user.phone)
+        .then(function(payload) {
+          var token = jwt.sign({id: payload.id, email: payload.email}, secret);
+          callback(null, token);
+        })
+        .catch(function(err) {
+          callback(err, null);
+        })
+
+      }
+      if (key != user.phone) {
+        callback('Key does not match', null);
+      }
+    }
+  });
+};
 
 function create(loginCredentials, callback) {
   db.one('SELECT * FROM users WHERE email = $1', loginCredentials.email)
@@ -24,8 +49,14 @@ function create(loginCredentials, callback) {
             length: 6,
             charset: 'numeric'
           });
+
+          //here I could stick a helper function that checks of the phone has already requested a key today!
+
           //Save key value in redis for 2FA
-          redisClient.set('phone_' + user.phone_number, key);
+          redisClient.set('key_' + user.phone_number, key);
+          //set timeouts for sending requests.
+          // redisClient.set('hold_' + user.phone_number, 60);
+          // redisClient.set('')
 
           //Dev
           if (process.env.env == 'dev') {
@@ -74,7 +105,13 @@ function create(loginCredentials, callback) {
 };
 
 
+function verifyToken() {
+
+};
+
 
 module.exports = {
-  create: create
+  authenticate: authenticate,
+  create: create,
+  verifyToken: verifyToken
 };

@@ -30,10 +30,27 @@ function create(req, res, next) {
       helpers.successResponse(req, res, success);
     }
   });
-  
+
+}
+
+function authenticate(req, res, next) {
+
+  var user = {
+    key: req.body.key,
+    phone: req.body.phone
+  };
+
+  Sessions.authenticate(user, function(err, success) {
+    if (err) {
+      helpers.errorResponse(req, res, err);
+    } else {
+      helpers.successResponse(req, res, success);
+    }
+  });
 }
 
 module.exports = {
   verifyToken: verifyToken,
-  create: create
+  create: create,
+  authenticate: authenticate
 };
