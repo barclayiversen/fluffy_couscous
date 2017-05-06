@@ -1,0 +1,13 @@
+env = change_me
+RDS_USERNAME = change_me
+RDS_PASSWORD = change_me
+RDS_DB_NAME = change_me
+RDS_HOSTNAME = change_me
+JWT_SECRET = change_me
+JWT_EXPIRATION = change_me
+SLACK_WEBHOOK = change_me
+TWILIO_ID = change_me
+TWILIO_PHONE = change_me
+TWILIO_KEY = change_me
+REDIS_HOSTNAME = change_me
+REDIS_PORT = change_me
