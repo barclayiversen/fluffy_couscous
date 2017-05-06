@@ -5,11 +5,12 @@ var phone = require('phone');
 var async = require('async');
 
 function create (req, res, next) {
-
+  var validPhoneNumber = phone(req.body.phone_number);
+  validPhoneNumber = validPhoneNumber[0];
   var user = {
     email: req.body.email,
     password: bcrypt.hashSync(req.body.password, 10),
-    phone_number: phone(req.body.phone_number)
+    phone_number: validPhoneNumber
   };
 
   User.create(user, function(err, success) {
@@ -24,6 +25,10 @@ function create (req, res, next) {
 
 };
 
+function update(req, res, next) {
+
+};
+
 function destroy (req, res, next) {
   User.destroy(req.params.user_id, function(err, success) {
     console.log(err, 'and', success);
@@ -33,9 +38,9 @@ function destroy (req, res, next) {
       successResponse(req, res, success);
     }
   })
-}
+};
 
 module.exports = {
   create: create,
   destroy: destroy
-}
+};

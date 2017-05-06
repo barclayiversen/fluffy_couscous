@@ -8,16 +8,19 @@ var jwt = require('jsonwebtoken'),
   Slack = require('slack-node'),
   randomstring = require('randomstring'),
   redisClient = redis.createClient(process.env.REDIS_PORT, process.env.REDIS_HOST),
-  twilioClient = require('twilio')(process.env.TWILIO_ID, process.env.TWILIO_KEY, process.env.TWILIO_PHONE);
+  twilioClient = require('twilio')(process.env.TWILIO_ID, process.env.TWILIO_KEY, process.env.TWILIO_PHONE),
+  phone = require('phone');
 
 function authenticate(user, callback) {
-  user.phone = phone(user.phone);
+  let temp = phone(user.phone);
+  user.phone = temp[0];
   redisClient.get('key_' + user.phone, function(err, key) {
+    console.log('key is ', key)
     if (err) {
       console.log('err', err);
       callback(err, null);
     } else {
-      if (key == user.phone) {
+      if (key == user.key) {
 
         db.one('SELECT id, email FROM users WHERE phone_number = $1', user.phone)
         .then(function(payload) {
@@ -29,7 +32,7 @@ function authenticate(user, callback) {
         })
 
       }
-      if (key != user.phone) {
+      if (key != user.key) {
         callback('Key does not match', null);
       }
     }
@@ -37,7 +40,8 @@ function authenticate(user, callback) {
 };
 
 function create(loginCredentials, callback) {
-  db.one('SELECT * FROM users WHERE email = $1', loginCredentials.email)
+
+  db.one('SELECT * FROM users WHERE email = $1', [loginCredentials.email])
     .then(function(user) {
       console.log(user);
       bcrypt.compare(loginCredentials.password, user.password, function(err, res) {
@@ -53,6 +57,7 @@ function create(loginCredentials, callback) {
           //here I could stick a helper function that checks of the phone has already requested a key today!
 
           //Save key value in redis for 2FA
+          console.log('setting key...', user.phone_number);
           redisClient.set('key_' + user.phone_number, key);
           //set timeouts for sending requests.
           // redisClient.set('hold_' + user.phone_number, 60);
