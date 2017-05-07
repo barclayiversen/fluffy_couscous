@@ -5,8 +5,8 @@ var async = require('async');
 
 
 function verifyToken(req, res, next) {
-
-  Sessions.verifyToken(req.body.token, function(err, res) {
+  console.log('body = ', req.body, ' headers = ', req.headers);
+  Sessions.verifyToken(req.headers.authorization, function(err, success) {
     if (err) {
       helpers.errorResponse(req, res, err);
     } else {
@@ -34,10 +34,10 @@ function create(req, res, next) {
 }
 
 function authenticate(req, res, next) {
-
+console.log(req.body)
   var user = {
     key: req.body.key,
-    phone: req.body.phone
+    phone: req.body.phone_number
   };
 
   Sessions.authenticate(user, function(err, success) {
@@ -49,8 +49,13 @@ function authenticate(req, res, next) {
   });
 }
 
+function destroy(req, res, next) {
+
+}
+
 module.exports = {
   verifyToken: verifyToken,
   create: create,
-  authenticate: authenticate
+  authenticate: authenticate,
+  destroy: destroy
 };
