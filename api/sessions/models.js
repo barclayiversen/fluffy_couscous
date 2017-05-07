@@ -1,4 +1,4 @@
-var jwt = require('jsonwebtoken'),
+const jwt = require('jsonwebtoken'),
   utils = require('../utils/helpers'),
   secret = process.env.JWT_SECRET,
   expiration = process.env.JWT_EXPIRATION,
@@ -9,11 +9,14 @@ var jwt = require('jsonwebtoken'),
   randomstring = require('randomstring'),
   redisClient = redis.createClient(process.env.REDIS_PORT, process.env.REDIS_HOST),
   twilioClient = require('twilio')(process.env.TWILIO_ID, process.env.TWILIO_KEY, process.env.TWILIO_PHONE),
-  phone = require('phone');
+  phone = require('phone'),
+  uuid = require('uuid/v1');
 
 function authenticate(user, callback) {
+
   let temp = phone(user.phone);
   user.phone = temp[0];
+  console.log('user.phone = ', user.phone);
   redisClient.get('key_' + user.phone, function(err, key) {
     console.log('key is ', key)
     if (err) {
@@ -23,13 +26,20 @@ function authenticate(user, callback) {
       if (key == user.key) {
 
         db.one('SELECT id, email FROM users WHERE phone_number = $1', user.phone)
-        .then(function(payload) {
-          var token = jwt.sign({id: payload.id, email: payload.email}, secret);
-          callback(null, token);
-        })
-        .catch(function(err) {
-          callback(err, null);
-        })
+          .then(function(payload) {
+            let jwtid = uuidV1();
+            var token = jwt.sign({
+              id: payload.id,
+              email: payload.email
+            }, secret, {
+              expiresIn: '30d',
+              jwtid: jwtid
+            });
+            callback(null, token);
+          })
+          .catch(function(err) {
+            callback(err, null);
+          })
 
       }
       if (key != user.key) {
@@ -110,7 +120,16 @@ function create(loginCredentials, callback) {
 };
 
 
-function verifyToken() {
+function verifyToken(token, callback) {
+  console.log('token = ', token);
+  jwt.verify(token, secret, function(err, decoded) {
+    if (err) {
+      callback(err, null);
+    } else {
+      console.log(decoded);
+      callback(null, decoded);
+    }
+  })
 
 };
 
