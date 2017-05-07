@@ -50,7 +50,7 @@ console.log(req.body)
 }
 
 function destroy(req, res, next) {
-
+  //delete token client side and redirect. 
 }
 
 module.exports = {

@@ -23,13 +23,18 @@ function authenticate(user, callback) {
       if (key == user.key) {
 
         db.one('SELECT id, email FROM users WHERE phone_number = $1', user.phone)
-        .then(function(payload) {
-          var token = jwt.sign({id: payload.id, email: payload.email}, secret);
-          callback(null, token);
-        })
-        .catch(function(err) {
-          callback(err, null);
-        })
+          .then(function(payload) {
+            var token = jwt.sign({
+              id: payload.id,
+              email: payload.email,
+            }, secret, {
+              expiresIn: '1h'
+            });
+            callback(null, token);
+          })
+          .catch(function(err) {
+            callback(err, null);
+          })
 
       }
       if (key != user.key) {
@@ -111,7 +116,15 @@ function create(loginCredentials, callback) {
 
 
 function verifyToken() {
-
+  console.log('token = ', token);
+  jwt.verify(token, secret, function(err, decoded) {
+    if (err) {
+      callback(err, null);
+    } else {
+      console.log(decoded);
+      callback(null, decoded);
+    }
+  })
 };
 
 

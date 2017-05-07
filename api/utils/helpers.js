@@ -40,7 +40,6 @@ function authenticateRequest(req, res, next) {
     if (err) {
       errorResponse(req, res, err);
     } else {
-      console.log('infact!!')
       return next();
     }
   });
