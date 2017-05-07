@@ -5,8 +5,10 @@ var phone = require('phone');
 var async = require('async');
 
 function create (req, res, next) {
+  //only store the number, not the country.
   var validPhoneNumber = phone(req.body.phone_number);
   validPhoneNumber = validPhoneNumber[0];
+  //create user object for model.
   var user = {
     email: req.body.email,
     password: bcrypt.hashSync(req.body.password, 10),
@@ -14,7 +16,7 @@ function create (req, res, next) {
   };
 
   User.create(user, function(err, success) {
-    console.log(err, success);
+
     if (err) {
       helpers.errorResponse(req, res, err);
     } else {
@@ -27,6 +29,10 @@ function create (req, res, next) {
 
 function update(req, res, next) {
 
+};
+
+function get(req, res, next) {
+  
 };
 
 function destroy (req, res, next) {
@@ -42,5 +48,7 @@ function destroy (req, res, next) {
 
 module.exports = {
   create: create,
-  destroy: destroy
+  destroy: destroy,
+  update: update,
+  get: get
 };
