@@ -27,12 +27,15 @@ function authenticate(user, callback) {
 
         db.one('SELECT id, email FROM users WHERE phone_number = $1', user.phone)
           .then(function(payload) {
+            //giving tokens unique id's, but not sure how I want to use them. 
             let jwtid = uuidV1();
+
             var token = jwt.sign({
               id: payload.id,
               email: payload.email
             }, secret, {
               expiresIn: '30d',
+              algorithm: 'RS256',
               jwtid: jwtid
             });
             callback(null, token);
