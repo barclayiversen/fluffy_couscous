@@ -2,7 +2,8 @@ var util = require('util'),
   express = require('express'),
   expressValidator = require('express-validator'),
   app = express(),
-  phone = require('phone');
+  phone = require('phone'),
+  secret = process.env.JWT_SECRET;
 
 function validateUserRegistrationData(req, res, next) {
   //TODO: Validate the user doesn't already exist.
@@ -28,6 +29,18 @@ function validateUserRegistrationData(req, res, next) {
           return next();
         }
       });
+    }
+  });
+
+}
+
+function authenticateRequest(req, res, next) {
+  //JWT check.
+  jwt.verify(req.headers.authorization, secret, function(err, decoded) {
+    if (err) {
+      errorResponse(req, res, err);
+    } else {
+      return next();
     }
   });
 
@@ -67,5 +80,6 @@ function successResponse(req, res, responseData) {
 module.exports = {
   validateUserRegistrationData: validateUserRegistrationData,
   errorResponse: errorResponse,
-  successResponse: successResponse
+  successResponse: successResponse,
+  authenticateRequest: authenticateRequest
 };

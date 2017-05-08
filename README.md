@@ -1,4 +1,4 @@
-Node api with twilio 2fa. 
+Node api with twilio 2fa.
 
 You'll need to create a .env for this.
 There's an example .env included for reference. 

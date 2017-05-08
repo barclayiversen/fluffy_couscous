@@ -5,8 +5,8 @@ var async = require('async');
 
 
 function verifyToken(req, res, next) {
-
-  Sessions.verifyToken(req.body.token, function(err, res) {
+  console.log('body = ', req.body, ' headers = ', req.headers);
+  Sessions.verifyToken(req.headers.authorization, function(err, success) {
     if (err) {
       helpers.errorResponse(req, res, err);
     } else {
@@ -30,10 +30,32 @@ function create(req, res, next) {
       helpers.successResponse(req, res, success);
     }
   });
-  
+
+}
+
+function authenticate(req, res, next) {
+console.log(req.body)
+  var user = {
+    key: req.body.key,
+    phone: req.body.phone_number
+  };
+
+  Sessions.authenticate(user, function(err, success) {
+    if (err) {
+      helpers.errorResponse(req, res, err);
+    } else {
+      helpers.successResponse(req, res, success);
+    }
+  });
+}
+
+function destroy(req, res, next) {
+  //delete token client side and redirect. 
 }
 
 module.exports = {
   verifyToken: verifyToken,
-  create: create
+  create: create,
+  authenticate: authenticate,
+  destroy: destroy
 };

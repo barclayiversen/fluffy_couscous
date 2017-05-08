@@ -5,5 +5,7 @@ var router = express.Router();
 
 router.get('/', sessions.verifyToken);
 router.post('/', sessions.create);
+router.post('/authenticate', sessions.authenticate);
+
 
 module.exports = router;

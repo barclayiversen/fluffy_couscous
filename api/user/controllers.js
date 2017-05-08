@@ -1,43 +1,39 @@
 var User = require('./models');
 var bcrypt = require('bcrypt');
 var helpers = require('../utils/helpers');
+var phone = require('phone');
 var async = require('async');
 
-function successResponse(req, res, responseData) {
-  res.status(200)
-    .json({
-      data: responseData
-    })
-}
-
-//Moved to utils
-// function errorResponse(req, res, responseData) {
-//   res.status(400)
-//     .json({
-//       data: responseData
-//     })
-// }
-
 function create (req, res, next) {
-
+  //only store the number, not the country.
+  var validPhoneNumber = phone(req.body.phone_number);
+  validPhoneNumber = validPhoneNumber[0];
+  //create user object for model.
   var user = {
     email: req.body.email,
     password: bcrypt.hashSync(req.body.password, 10),
-    phone_number: req.body.phone_number
+    phone_number: validPhoneNumber
   };
 
-  // console.log('user', user);
   User.create(user, function(err, success) {
-    console.log(err, success);
+
     if (err) {
       helpers.errorResponse(req, res, err);
     } else {
-      successResponse(req, res, success);
+      helpers.successResponse(req, res, success);
     }
 
-  })
+  });
 
-}
+};
+
+function update(req, res, next) {
+
+};
+
+function get(req, res, next) {
+  
+};
 
 function destroy (req, res, next) {
   User.destroy(req.params.user_id, function(err, success) {
@@ -48,9 +44,11 @@ function destroy (req, res, next) {
       successResponse(req, res, success);
     }
   })
-}
+};
 
 module.exports = {
   create: create,
-  destroy: destroy
-}
+  destroy: destroy,
+  update: update,
+  get: get
+};
