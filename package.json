@@ -4,7 +4,7 @@
   "description": "just_for_fun",
   "main": "server.js",
   "scripts": {
-    "start": "npm install; nodemon ./bin/www"
+    "start": "nodemon ./bin/www"
   },
   "author": "",
   "license": "ISC",
