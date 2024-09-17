@@ -1,6 +1,5 @@
 FROM node:7.10.0
 RUN apt-get update
-
 WORKDIR /usr/src/app
 COPY package.json /usr/src/app/
 RUN npm install
